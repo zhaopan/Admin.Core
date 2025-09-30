@@ -232,7 +232,7 @@ const state = reactive({
     loading: false,
     pagination: {
       currentPage: 1,
-      pageSize: 20,
+      pageSize: 10,
       total: 0,
     },
   },
