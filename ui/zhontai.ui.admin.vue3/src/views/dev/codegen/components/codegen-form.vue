@@ -17,9 +17,13 @@
         <div class="my-flex my-flex-between my-flex-items-center">
           <h4 :id="titleId" :class="titleClass">{{ state.title }}</h4>
           <div class="my-flex">
-            <el-icon v-if="state.isFull" class="el-dialog__btn" @click="state.isFull = !state.isFull" title="还原"><ele-CopyDocument /></el-icon>
-            <el-icon v-else class="el-dialog__btn" @click="state.isFull = !state.isFull" title="最大化"><ele-FullScreen /></el-icon>
-            <el-icon class="el-dialog__btn" @click="close" title="关闭"><ele-Close /></el-icon>
+            <div class="el-dialog__btn">
+              <el-icon v-if="state.isFull" @click="state.isFull = !state.isFull" title="还原"><ele-CopyDocument /></el-icon>
+              <el-icon v-else @click="state.isFull = !state.isFull" title="最大化"><ele-FullScreen /></el-icon>
+            </div>
+            <div class="el-dialog__btn">
+              <el-icon @click="close" title="关闭"><ele-Close /></el-icon>
+            </div>
           </div>
         </div>
       </template>
@@ -70,7 +74,7 @@
         >
           <el-row>
             <el-col :xl="8" :lg="8" :md="12" :sm="12" :xs="24">
-              <el-form-item label="数据库" prop="dbKey">
+              <el-form-item label="数据库" prop="dbKey" :rules="[{ required: true, message: '请选择数据库', trigger: ['change'] }]">
                 <el-select v-model="state.config.dbKey" clearable>
                   <el-option v-for="item in state.dbKeys" :key="item.dbKey" :value="item.dbKey" :label="item.dbKey"></el-option>
                 </el-select>
@@ -187,7 +191,7 @@
                 <el-button type="danger" link icon="ele-Minus" @click="removeField(scope.row, scope.$index)" />
               </template>
             </el-table-column>
-            <el-table-column prop="columnName" label="列名" fixed width="150">
+            <el-table-column prop="columnName" label="列名" label-class-name="my-col--required" fixed width="150">
               <template #default="scope">
                 <el-input v-if="!showMode" v-model="scope.row.columnName"></el-input>
                 <div v-else>{{ scope.row.columnName }}</div>
@@ -215,7 +219,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="editor" label="组件类型" width="140">
+            <el-table-column prop="editor" label="组件类型" label-class-name="my-col--required" width="140">
               <template #default="scope">
                 <el-select v-if="!showMode" v-model="scope.row.editor">
                   <el-option v-for="item in editors" :key="item.value" :value="item.value" :label="item.label"></el-option>
@@ -754,9 +758,13 @@ defineExpose({
 <style scoped lang="scss">
 .el-dialog__btn {
   cursor: pointer;
-  margin-right: 8px;
   color: var(--el-color-info);
-
+  font-size: var(--el-message-close-size, 16px);
+  width: 1em;
+  height: 1em;
+  & + & {
+    margin-left: 8px;
+  }
   &:hover {
     color: var(--el-color-primary);
   }
@@ -779,6 +787,14 @@ defineExpose({
     margin-right: 20px;
     &:last-of-type {
       margin-right: 0;
+    }
+  }
+
+  .my-col--required {
+    .cell:after {
+      color: var(--el-color-danger);
+      content: '*';
+      margin-left: 4px;
     }
   }
 }
