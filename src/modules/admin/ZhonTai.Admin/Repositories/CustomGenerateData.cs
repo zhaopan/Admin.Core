@@ -70,20 +70,8 @@ public class CustomGenerateData : GenerateData, IGenerateData
             r.Childs.AddRange(datalist);
         });
 
-        var dicts = await db.Queryable<DictEntity>().ToListAsync();
-        var dictTree = dicts.Clone().ToTree((r, c) =>
-        {
-            return !(c.ParentId.HasValue && c.ParentId.Value > 0);
-        },
-        (r, c) =>
-        {
-            return r.Id == c.ParentId;
-        },
-        (r, datalist) =>
-        {
-            r.Childs ??= [];
-            r.Childs.AddRange(datalist);
-        });
+        var dictTree = await db.Queryable<DictEntity>().ToListAsync();
+        
         #endregion
 
         #region 接口
