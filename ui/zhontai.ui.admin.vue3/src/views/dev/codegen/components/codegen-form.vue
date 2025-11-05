@@ -14,7 +14,7 @@
       width="80%"
     >
       <template #header="{ close, titleId, titleClass }">
-        <div class="my-flex my-flex-between my-flex-items-center">
+        <div class="my-flex my-flex-between my-flex-items-center my-dialog-header" @dblclick="state.isFull = !state.isFull">
           <h4 :id="titleId" :class="titleClass">{{ state.title }}</h4>
           <div class="my-flex">
             <div class="el-dialog__btn">
@@ -34,12 +34,12 @@
         </span>
       </template>
       <div>
-        <div style="margin-bottom: 20px; text-align: center; position: relative">
-          <el-radio-group v-model="state.editor">
+        <div style="text-align: center; position: relative">
+          <el-radio-group class="mb20" v-model="state.editor">
             <el-radio-button label="infor">基础配置</el-radio-button>
             <el-radio-button label="field">字段配置</el-radio-button>
           </el-radio-group>
-          <div style="position: absolute; top: 0; right: 0">
+          <div class="mb20" :style="{ position: themeConfig.isMobile ? 'relative' : 'absolute' }" style="top: 0; right: 0">
             <el-row v-show="state.editor == 'field'">
               <el-col style="text-align: right">
                 <el-space wrap :size="12">
@@ -193,7 +193,12 @@
             </el-table-column>
             <el-table-column prop="columnName" label="列名" label-class-name="my-col--required" fixed width="150">
               <template #default="scope">
-                <el-input v-if="!showMode" v-model="scope.row.columnName"></el-input>
+                <el-input
+                  v-if="!showMode"
+                  v-model="scope.row.columnName"
+                  :class="{ 'field-error': hasFieldError(scope.$index, 'columnName') }"
+                  @blur="validateField(scope.$index, 'columnName')"
+                ></el-input>
                 <div v-else>{{ scope.row.columnName }}</div>
               </template>
             </el-table-column>
@@ -221,7 +226,12 @@
 
             <el-table-column prop="editor" label="组件类型" label-class-name="my-col--required" width="140">
               <template #default="scope">
-                <el-select v-if="!showMode" v-model="scope.row.editor">
+                <el-select
+                  v-if="!showMode"
+                  v-model="scope.row.editor"
+                  :class="{ 'field-error': hasFieldError(scope.$index, 'editor') }"
+                  @change="validateField(scope.$index, 'editor')"
+                >
                   <el-option v-for="item in editors" :key="item.value" :value="item.value" :label="item.label"></el-option>
                 </el-select>
                 <div v-else>{{ scope.row.editor }}</div>
@@ -465,6 +475,12 @@ import { DatabaseGetOutput, CodeGenFieldGetOutput, CodeGenGetOutput, CodeGenUpda
 import { AxiosResponse } from 'axios'
 import { FormRules } from 'element-plus'
 import { CodeGenApi } from '/@/api/dev/CodeGen'
+import { useThemeConfig } from '/@/stores/themeConfig'
+
+const storesThemeConfig = useThemeConfig()
+const { themeConfig } = storeToRefs(storesThemeConfig)
+
+const { proxy } = getCurrentInstance() as any
 
 const tableInfoFromRef = ref()
 
@@ -572,24 +588,25 @@ const editRules = reactive<FormRules>({
   /** 作者姓名 */
   authorName: [],
   /** 数据库表名 */
-  tableName: [{ required: true, message: '表名不能为空！', trigger: 'blur' }],
+  tableName: [{ required: true, message: '请输入表名', trigger: 'blur' }],
   /** 命名空间 */
   namespace: [],
   /** 实体名称 */
   entityName: [],
   /** 业务名 */
-  busName: [{ required: true, message: '业务名不能为空', trigger: 'blur' }],
+  busName: [{ required: true, message: '请输入业务名', trigger: 'blur' }],
   /** Api分区名称 */
   apiAreaName: [],
   /** 基类名称 */
   baseEntity: [],
   /** 后端输出目录 */
-  backendOut: [{ required: true, message: '后端代码生成输出目录不能为空', trigger: 'blur' }],
+  backendOut: [{ required: true, message: '请输入后端输出目录', trigger: 'blur' }],
   /** 前端输出目录 */
   frontendOut: [],
   dbMigrateSqlOut: [],
   menuAfterText: [],
 })
+
 const state = reactive({
   showDialog: false,
   isFull: false,
@@ -606,6 +623,7 @@ const state = reactive({
 const setTableSize = (size: string) => {
   state.tableSize = size
 }
+
 function _newCol(name: string, title: string, netType: string, options: CodeGenUpdateInput | any | null): CodeGenFieldGetOutput {
   if (undefined == netType || null == netType) netType = 'string'
   let col: CodeGenFieldGetOutput = {
@@ -646,7 +664,8 @@ function _newCol(name: string, title: string, netType: string, options: CodeGenU
   }
   return col
 }
-// // 打开对话框
+
+// 添加字段
 const appendField = async (fieldType: number) => {
   console.log('append in editor')
   if (!state.config) return
@@ -710,20 +729,135 @@ const appendField = async (fieldType: number) => {
   }
 }
 
+// 删除字段
 const removeField = async (row: CodeGenFieldGetOutput, index: number) => {
   if (!state.config?.fields) return
-  var cols = state.config.fields
   state.config.fields.splice(index, 1)
-  // state.config.fields = cols.filter((item: CodeGenFieldGetOutput) => {
-  //   return item.id != row.id && item.columnName != row.columnName
-  // })
+
+  // 删除对应的错误状态
+  if (fieldErrors.value[index]) {
+    delete fieldErrors.value[index]
+  }
+
+  // 重新索引错误状态
+  const newErrors: Record<number, Record<string, string>> = {}
+  Object.keys(fieldErrors.value).forEach((key) => {
+    const oldIndex = parseInt(key)
+    if (oldIndex > index) {
+      newErrors[oldIndex - 1] = fieldErrors.value[oldIndex]
+    } else if (oldIndex < index) {
+      newErrors[oldIndex] = fieldErrors.value[oldIndex]
+    }
+  })
+  fieldErrors.value = newErrors
 }
+
+// 新增响应式数据存储字段校验错误
+const fieldErrors = ref<Record<number, Record<string, string>>>({})
+
+// 字段校验规则
+const fieldRules = {
+  columnName: [{ required: true, message: '列名不能为空', trigger: 'blur' }],
+  editor: [{ required: true, message: '组件类型不能为空', trigger: 'blur' }],
+}
+
+// 检查字段是否有错误
+const hasFieldError = (index: number, fieldName: string) => {
+  return fieldErrors.value[index] && fieldErrors.value[index][fieldName]
+}
+
+// 获取字段错误信息
+const getFieldError = (index: number, fieldName: string) => {
+  return fieldErrors.value[index] && fieldErrors.value[index][fieldName]
+}
+
+// 校验单个字段
+const validateField = (index: number, fieldName: string) => {
+  const field = state.config.fields[index]
+  const value = field[fieldName]
+  const rules = fieldRules[fieldName as keyof typeof fieldRules]
+
+  // 初始化错误对象
+  if (!fieldErrors.value[index]) {
+    fieldErrors.value[index] = {}
+  }
+
+  // 清除之前的错误
+  delete fieldErrors.value[index][fieldName]
+
+  // 应用校验规则
+  for (const rule of rules) {
+    if (rule.required && (!value || value.toString().trim() === '')) {
+      fieldErrors.value[index][fieldName] = rule.message
+      break
+    }
+  }
+
+  // 如果没有错误，删除空的错误对象
+  if (Object.keys(fieldErrors.value[index]).length === 0) {
+    delete fieldErrors.value[index]
+  }
+}
+
+// 校验所有字段
+const validateAllFields = () => {
+  // 清除所有现有错误
+  fieldErrors.value = {}
+
+  let hasErrors = false
+
+  if (state.config.fields && state.config.fields.length > 0) {
+    state.config.fields.forEach((field: any, index: any) => {
+      // 校验列名
+      if (!field.columnName || field.columnName.trim() === '') {
+        if (!fieldErrors.value[index]) {
+          fieldErrors.value[index] = {}
+        }
+        fieldErrors.value[index].columnName = '列名不能为空'
+        hasErrors = true
+      }
+
+      // 校验组件类型
+      if (!field.editor || field.editor.trim() === '') {
+        if (!fieldErrors.value[index]) {
+          fieldErrors.value[index] = {}
+        }
+        fieldErrors.value[index].editor = '组件类型不能为空'
+        hasErrors = true
+      }
+    })
+  }
+
+  return !hasErrors
+}
+
 const onCancel = () => {
   state.showDialog = false
 }
+
 const onSure = () => {
+  if (state.editor === 'field') {
+    const isFieldsValid = validateAllFields()
+    if (!isFieldsValid) {
+      return
+    }
+  }
+
   tableInfoFromRef.value.validate(async (valid: boolean) => {
-    if (!valid) return
+    if (!valid) {
+      if (state.editor === 'field') {
+        proxy.$modal.msgWarning('请检查基础配置中的必填项')
+      }
+      return
+    }
+
+    const isFieldsValid = validateAllFields()
+    if (!isFieldsValid) {
+      if (state.editor === 'infor') {
+        proxy.$modal.msgWarning('请检查字段配置中的必填项')
+      }
+      return
+    }
 
     state.sureLoading = true
 
@@ -769,8 +903,32 @@ defineExpose({
     color: var(--el-color-primary);
   }
 }
+
+// 新增错误样式
+.field-error {
+  :deep() {
+    .el-input__wrapper,
+    .el-select__wrapper {
+      box-shadow: 0 0 0 1px var(--el-color-error) inset;
+    }
+  }
+}
+
+.field-error-message {
+  color: var(--el-color-error);
+  font-size: 12px;
+  line-height: 1;
+  margin-top: 4px;
+}
+
 :deep() {
+  .el-overlay .el-overlay-dialog .el-dialog .el-dialog__header {
+    padding: 0px;
+  }
   .el-dialog {
+    .my-dialog-header {
+      padding: 16px;
+    }
     .my-dialog-table {
       height: calc(90vh - 203px);
     }
