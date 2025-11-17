@@ -83,7 +83,7 @@ public class CustomGenerateData : GenerateData, IGenerateData
         {
             r.Childs ??= [];
             r.Childs.AddRange(datalist);
-        });        
+        });
         #endregion
 
         #region 接口
