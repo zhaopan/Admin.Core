@@ -8,10 +8,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="表名">
-          <el-input clearable v-model="state.filter.tableName" placeholder="请输入表名" @keyup.enter="getConfigs"> </el-input>
+          <el-input clearable v-model="state.filter.tableName" placeholder="请输入表名" @keyup.enter="getCodeGenData"> </el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="ele-Search" @click="getConfigs">查询</el-button>
+          <el-button type="primary" icon="ele-Search" @click="getCodeGenData">查询</el-button>
           <el-button type="primary" @click="getTables">查看数据库结构</el-button>
         </el-form-item>
       </el-form>
@@ -38,7 +38,15 @@
         </div>
         <div></div>
       </div>
-      <el-table :data="state.configs" highlight-current-row ref="listTableRef" @row-dblclick="modifyConfig" @selection-change="selsChange" border>
+      <el-table
+        v-loading="state.loading"
+        :data="state.configs"
+        highlight-current-row
+        ref="listTableRef"
+        @row-dblclick="modifyConfig"
+        @selection-change="selsChange"
+        border
+      >
         <el-table-column type="selection" width="50" align="center" header-align="center" />
         <el-table-column prop="tableName" label="表名称" width="200" fixed show-overflow-tooltip></el-table-column>
         <el-table-column prop="entityName" label="实体名" width="180" fixed show-overflow-tooltip></el-table-column>
@@ -185,7 +193,7 @@ const state = reactive({
 
   dbTree: [] as Array<DbTree>,
   // 状态器定义
-  dataLoading: false,
+  loading: false,
   dbStructShow: false,
   sels: [] as Array<CodeGenGetOutput>,
   importConfigs: [] as Array<any>,
@@ -194,6 +202,7 @@ const state = reactive({
   importSuccess: false as Boolean,
 })
 
+// 初始化数据
 const genDefaultConfig = (): CodeGenUpdateInput => {
   return {
     id: 0,
@@ -225,20 +234,22 @@ const genDefaultConfig = (): CodeGenUpdateInput => {
     fields: [],
   }
 }
+
+// 获取基础数据
 const getBaseData = async () => {
-  state.dataLoading = true
   const res = await new CodeGenApi().getBaseData()
   state.dbKeys = res?.data?.databases ?? []
   delete res?.data?.databases
   state.defaultOption = res?.data
-  state.dataLoading = false
 }
+
+// 获取数据库结构
 const getTables = async () => {
   if (!state.filter.dbKey) {
     proxy.$modal.msgWarning('请选择数据库')
     return
   }
-  const res = await new CodeGenApi().getTables({ dbkey: state.filter.dbKey })
+  const res = await new CodeGenApi().getTables({ dbkey: state.filter.dbKey }, { loading: true })
   state.dbStructShow = true
 
   let dbTree: DbTree[] = []
@@ -266,18 +277,16 @@ const getTables = async () => {
   })
   state.dbTree = dbTree
 }
-const getConfigs = async () => {
-  // state.filter.config = null
-  state.dataLoading = true
-  const res = await new CodeGenApi().getList({ dbkey: state.filter.dbKey, tableName: state.filter.tableName })
+
+// 获取代码生成数据
+const getCodeGenData = async () => {
+  state.loading = true
+  const res = await new CodeGenApi().getList({ dbkey: state.filter.dbKey, tableName: state.filter.tableName }).catch(() => {})
   state.configs = res?.data ?? []
-  state.dataLoading = false
+  state.loading = false
 }
 
-const configSelect = async (row: CodeGenGetOutput, column: any, event: any) => {
-  state.filter.config = row
-}
-
+// 显示编辑数据
 const showEditData = async (data: CodeGenGetOutput & any) => {
   if (data.importStatus == '导入成功') {
     proxy.$modal.msgWarning('导入成功后不能再编辑')
@@ -286,32 +295,25 @@ const showEditData = async (data: CodeGenGetOutput & any) => {
   codegenFormRef?.value?.open(data)
 }
 
-const createTable = async () => {
+// 创建表
+const createTable = () => {
   showEditData(genDefaultConfig())
 }
 
-const removeConfig = async (config: CodeGenGetOutput) => {
-  if (!config) {
-    proxy.$modal.msgWarning('请选择表。')
-    return
-  }
-  proxy.$modal.confirmDelete(`确定要删除【${config.tableName}】？`).then(async () => {
-    onDelRow(config)
-  })
-}
-
+// 删除数据
 const onDelRow = async (config: CodeGenGetOutput) => {
   proxy.$modal
     .confirmDelete(`确定要删除【${config.busName}】?`)
     .then(async () => {
       var res = await new CodeGenApi().delete({ id: config.id }, { loading: true, showSuccessMessage: true })
       if (res?.success) {
-        getConfigs()
+        getCodeGenData()
       }
     })
     .catch(() => {})
 }
 
+// 修改配置
 const modifyConfig = async (config: CodeGenGetOutput) => {
   if (!config) {
     return
@@ -323,6 +325,7 @@ const dialogTalbeToggleSelection = async (row: CodeGenGetOutput) => {
   importDialogTableRef.value!.toggleRowSelection(row)
 }
 
+// 生成代码
 const generate = async (config: CodeGenGetOutput) => {
   if (!config) {
     return
@@ -331,6 +334,7 @@ const generate = async (config: CodeGenGetOutput) => {
   await new CodeGenApi().generate({ id: config.id }, { loading: true, showSuccessMessage: true })
 }
 
+// 编译
 const compile = async (config: CodeGenGetOutput) => {
   if (!config) {
     return
@@ -346,6 +350,7 @@ const compile = async (config: CodeGenGetOutput) => {
   }
 }
 
+// 获得编译
 const genCompile = async (config: CodeGenGetOutput) => {
   if (!config) {
     return
@@ -354,6 +359,7 @@ const genCompile = async (config: CodeGenGetOutput) => {
   await new CodeGenApi().genCompile({ id: config.id }, { loading: true, showSuccessMessage: true })
 }
 
+// 生成菜单
 const genMenu = async (config: CodeGenGetOutput) => {
   if (!config) return
   await new CodeGenApi().genMenu({ id: config.id }, { loading: true, showSuccessMessage: true })
@@ -390,7 +396,7 @@ const onConfigEditSure = async (data: any) => {
 
   let callback = data.callback as Function
   callback(res)
-  getConfigs()
+  getCodeGenData()
 }
 
 const tableNodeSelect = async (obj: DbTree, node: any, prop: any, event: any) => {
@@ -436,7 +442,7 @@ const genType = (t: number) => {
 
 onMounted(() => {
   getBaseData()
-  getConfigs()
+  getCodeGenData()
   eventBus.on('onConfigEditSure', async (config: CodeGenUpdateInput) => {
     onConfigEditSure(config)
   })
@@ -523,6 +529,6 @@ const onCancelImport = () => {
 
 const onCompleteImport = () => {
   onCancelImport()
-  getConfigs()
+  getCodeGenData()
 }
 </script>
