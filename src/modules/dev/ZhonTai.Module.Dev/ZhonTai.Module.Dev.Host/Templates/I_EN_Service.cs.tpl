@@ -15,9 +15,9 @@ using ZhonTai.Admin.Core.Entities;
 {
 @:using @ns;    
 }
-using @(gen.Namespace).Services.@(entityNamePc).Dtos;
+using @(gen.Namespace).Api.Contracts.Services.@(entityNamePc).Dtos;
 
-namespace @(gen.Namespace).Services.@(entityNamePc)
+namespace @(gen.Namespace).Api.Contracts.Services.@(entityNamePc)
 {
     /// <summary>
     /// @(gen.BusName)服务接口
@@ -108,7 +108,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
     }
 }
 
-namespace @(gen.Namespace).Services.@(entityNamePc).Dtos
+namespace @(gen.Namespace).Api.Contracts.Services.@(entityNamePc).Dtos
 {
 @if (gen.GenGetList)
 {
