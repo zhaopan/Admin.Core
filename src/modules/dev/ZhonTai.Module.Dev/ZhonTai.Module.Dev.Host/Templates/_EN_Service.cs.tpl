@@ -6,6 +6,7 @@
     var entityNameCc = gen.EntityName?.NamingCamelCase();
     var moduleNamePc = gen.ApiAreaName?.NamingPascalCase();
 }
+using FreeSql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using ZhonTai.Admin.Core.Db;
 using ZhonTai.Admin.Core.Dto;
 using ZhonTai.Admin.Services;
 using ZhonTai.DynamicApi;
@@ -25,6 +27,7 @@ using @(gen.Namespace).Api.Core.Consts;
 using @(gen.Namespace).Api.Core.Repositories;
 using @(gen.Namespace).Api.Contracts.Domain.@(entityNamePc);
 using @(gen.Namespace).Api.Contracts.Services.@(entityNamePc).Dtos;
+using AdminDbKeys = ZhonTai.Admin.Core.Consts.DbKeys;
 
 namespace @(gen.Namespace).Api.Services.@(entityNamePc);
 
@@ -91,7 +94,7 @@ if (gen.Fields.Any(a => !string.IsNullOrWhiteSpace(a.DictTypeCode)))
         @:{
             @:var cloud = LazyGetRequiredService<FreeSqlCloud>();
             @:var adminDb = cloud.Use(AdminDbKeys.AdminDb);
-            @:var dictRepo = adminDb.GetRepoBase<DictEntity>();
+            @:var dictRepo = adminDb.GetRepositoryBase<DictEntity>();
             @:var dictTypeCodes = new[] { @string.Join(", ", dictCols.Select(s => $"\"{s.DictTypeCode}\"")) };
             @:var dictList = await dictRepo.Where(w => dictTypeCodes.Contains(w.DictType.Code)).ToListAsync();
 @:
@@ -99,7 +102,7 @@ if (gen.Fields.Any(a => !string.IsNullOrWhiteSpace(a.DictTypeCode)))
             @:{
     foreach (var col in dictCols)
     {
-                @:s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@col.DictTypeCode" && f.Value == @(col.IsNumColumn() ? "\"\" + " : "")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+                @:s.@(col.ColumnName)DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@col.DictTypeCode" && f.Value == @(col.IsNumColumn() ? "\"\" + " : "")s.@(col.ColumnName.NamingPascalCase()))?.Name;
     }
                 @:return s;
             @:}).ToList();
@@ -158,7 +161,7 @@ else if (col.IsNumColumn())
       @:{
         @:var cloud = LazyGetRequiredService<FreeSqlCloud>();
         @:var adminDb = cloud.Use(AdminDbKeys.AdminDb);
-        @:var dictRepo = adminDb.GetRepoBase<DictEntity>();
+        @:var dictRepo = adminDb.GetRepositoryBase<DictEntity>();
         @:var dictTypeCodes = new[] { @string.Join(", ", dictCols.Select(s => $"\"{s.DictTypeCode}\"")) };
         @:var dictList = await dictRepo.Where(w => dictTypeCodes.Contains(w.DictType.Code)).ToListAsync();
 @:
@@ -166,7 +169,7 @@ else if (col.IsNumColumn())
             @:{
 foreach (var col in dictCols)
 {
-                @:s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@col.DictTypeCode" && f.Value == @(col.IsNumColumn() ? "\"\" + " : "")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+                @:s.@(col.ColumnName)DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@col.DictTypeCode" && f.Value == @(col.IsNumColumn() ? "\"\" + " : "")s.@(col.ColumnName.NamingPascalCase()))?.Name;
 }
                 @:return s;
             @:}).ToList();
@@ -201,7 +204,7 @@ foreach (var col in includeCols)
         @:if (@(col.ColumnName.NamingCamelCase())Rows.Any())
         @:{
             @:var @(col.ColumnName.NamingCamelCase())Repo = LazyGetRequiredService<Contracts.Domain.@(col.IncludeEntity.Replace("Entity", "")).I@(col.IncludeEntity.Replace("Entity", ""))Repository>();
-            @:var @(col.ColumnName.NamingCamelCase())List = @(col.ColumnName.NamingCamelCase())Rows.SelectMany(s => s.@(col.ColumnName)_Values).Select(s => long.TryParse(s, out long result) ? result : 0).Where(id => id > 0).Distinct().ToList();
+            @:var @(col.ColumnName.NamingCamelCase())List = @(col.ColumnName.NamingCamelCase())Rows.SelectMany(s => s.@(col.ColumnName.NamingPascalCase())_Values).Select(s => long.TryParse(s, out long result) ? result : 0).Where(id => id > 0).Distinct().ToList();
         @:
             @:var @(col.ColumnName.NamingCamelCase())DataList = await @(col.ColumnName.NamingCamelCase())Repo.Where(s => @(col.ColumnName.NamingCamelCase())List.Contains(s.Id)).ToListAsync(s => new { s.Id, s.@(col.IncludeEntityKey) });
         @:
