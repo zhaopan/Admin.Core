@@ -71,7 +71,6 @@
 <script setup lang="ts" name="layoutBreadcrumbUser">
 import { ElMessageBox, ElMessage } from 'element-plus'
 import screenfull from 'screenfull'
-import { useI18n } from 'vue-i18n'
 import { useUserInfo } from '/@/stores/userInfo'
 import { useThemeConfig } from '/@/stores/themeConfig'
 import other from '/@/utils/other'
@@ -183,7 +182,6 @@ const onComponentSizeChange = (size: string) => {
   themeConfig.value.globalComponentSize = size
   Local.set('themeConfig', themeConfig.value)
   initI18nOrSize('globalComponentSize', 'disabledSize')
-  window.location.reload()
 }
 // 语言切换
 const onLanguageChange = (lang: string) => {
