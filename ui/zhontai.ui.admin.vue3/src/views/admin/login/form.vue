@@ -25,7 +25,7 @@
         v-model:isPopup="isPopup"
         @ok="onOk"
       />
-      <el-divider style="margin-top: 40px">其他方式登录</el-divider>
+      <el-divider style="margin-top: 40px">{{ t('其他方式登录') }}</el-divider>
       <div class="login-other my-flex my-flex-center">
         <el-link
           v-for="(loginMethod, index) in loginMethods"
@@ -42,7 +42,7 @@
       </div>
     </div>
     <div v-if="showReg && !(state.isScan || state.isChangePassword)" class="login-content-main-switch" @click="onReg">
-      <span>{{ state.isReg ? '登录' : '注册' }}</span>
+      <span>{{ state.isReg ? t('登录') : t('注册') }}</span>
       <div class="login-content-main-switch-delta"></div>
     </div>
   </div>
@@ -51,6 +51,7 @@
 <script lang="ts" setup name="login/dialog">
 import { AccountType } from '/@/api/admin/enum-contracts'
 import { ComponentType } from '/@/api/admin.extend/enum-contracts'
+import { t } from '/@/i18n'
 
 //是否显示注册
 const showReg = defineModel('showReg', { type: Boolean, default: true })
@@ -86,17 +87,17 @@ const loginMethods = [
   {
     icon: 'ele-User',
     name: accountComponentName,
-    title: 'message.label.one1',
+    title: '账号登录',
   },
   {
     icon: 'ele-Iphone',
     name: mobileComponentName,
-    title: 'message.label.two2',
+    title: '手机登录',
   },
   {
     icon: 'ele-Message',
     name: emailComponentName,
-    title: 'message.label.two3',
+    title: '邮箱登录',
   },
   {
     svg: 'qq',

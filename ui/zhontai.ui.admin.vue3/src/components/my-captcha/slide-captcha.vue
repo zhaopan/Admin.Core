@@ -33,7 +33,7 @@
       </div>
       <div class="captcha_message loadding" v-if="state.showGenerateLoadding">
         <div class="captcha_message__icon captcha_message__icon--loadding"></div>
-        <div class="captcha_message__text">加载中...</div>
+        <div class="captcha_message__text">{{ t('加载中...') }}</div>
       </div>
       <div class="captcha_message" v-if="state.showVerifyLoadding">
         <div class="captcha_message__icon captcha_message__icon--loadding"></div>
@@ -94,6 +94,7 @@
 
 <script lang="ts" setup name="my-slide-captcha">
 import { reactive, computed, ref, onMounted, onBeforeMount, onUnmounted } from 'vue'
+import { t } from '/@/i18n'
 
 const props = defineProps({
   width: {
@@ -130,7 +131,7 @@ const props = defineProps({
   },
   text: {
     type: String,
-    default: '按住滑块拖动',
+    default: () => t('按住滑块拖动'),
   },
   progressBarBg: {
     type: String,
@@ -138,11 +139,11 @@ const props = defineProps({
   },
   successTip: {
     type: String,
-    default: '验证通过',
+    default: () => t('验证通过'),
   },
   failTip: {
     type: String,
-    default: '验证未通过，拖动滑块将悬浮图像正确合并',
+    default: () => t('验证未通过，拖动滑块将悬浮图像正确合并'),
   },
   showRefresh: {
     type: Boolean,

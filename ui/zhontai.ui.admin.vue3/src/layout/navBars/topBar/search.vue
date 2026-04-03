@@ -5,7 +5,7 @@
         <el-autocomplete
           v-model="state.menuQuery"
           :fetch-suggestions="menuSearch"
-          :placeholder="$t('message.user.searchPlaceholder')"
+          :placeholder="$t('菜单搜索：支持中文、路由路径')"
           ref="layoutMenuAutocompleteRef"
           @select="onHandleSelect"
           :fit-input-width="true"
@@ -29,12 +29,12 @@
 
 <script setup lang="ts" name="layoutBreadcrumbSearch">
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes'
+import { t } from '/@/i18n'
 
 // 定义变量内容
 const storesTagsViewRoutes = useTagsViewRoutes()
 const { tagsViewRoutes } = storeToRefs(storesTagsViewRoutes)
 const layoutMenuAutocompleteRef = ref()
-const { t } = useI18n()
 const router = useRouter()
 const state = reactive<SearchState>({
   isShowSearch: false,

@@ -16,27 +16,18 @@
             }
           "
           :class="{ 'layout-columns-active': state.liIndex === k, 'layout-columns-hover': state.liHoverIndex === k }"
-          :title="$t(v.meta.title)"
         >
           <div :class="themeConfig.columnsAsideLayout" v-if="!v.meta.isLink || (v.meta.isLink && v.meta.isIframe)">
             <SvgIcon :name="v.meta.icon" />
-            <div class="columns-vertical-title font12">
-              {{
-                $t(v.meta.title) && $t(v.meta.title).length >= 4
-                  ? $t(v.meta.title).substr(0, themeConfig.columnsAsideLayout === 'columns-vertical' ? 4 : 3)
-                  : $t(v.meta.title)
-              }}
+            <div class="columns-vertical-title">
+              <el-text truncated>{{ $t(v.meta.title) }}</el-text>
             </div>
           </div>
           <div :class="themeConfig.columnsAsideLayout" v-else>
             <a :href="v.meta.isLink" target="_blank">
               <SvgIcon :name="v.meta.icon" />
-              <div class="columns-vertical-title font12">
-                {{
-                  $t(v.meta.title) && $t(v.meta.title).length >= 4
-                    ? $t(v.meta.title).substr(0, themeConfig.columnsAsideLayout === 'columns-vertical' ? 4 : 3)
-                    : $t(v.meta.title)
-                }}
+              <div class="columns-vertical-title">
+                <el-text truncated>{{ $t(v.meta.title) }}</el-text>
               </div>
             </a>
           </div>
@@ -291,11 +282,18 @@ watch(
       z-index: 1;
       &:hover {
         @extend .layout-columns-hover;
+        .el-text {
+          color: var(--el-color-primary);
+        }
       }
       .columns-vertical {
         margin: auto;
+        width: 100%;
         .columns-vertical-title {
           padding-top: 1px;
+          padding-left: 5px;
+          padding-right: 5px;
+          width: 100%;
         }
       }
       .columns-horizontal {
@@ -325,8 +323,8 @@ watch(
       position: absolute;
       left: 50%;
       top: 2px;
-      height: 44px;
-      width: 65px;
+      height: 50px;
+      width: 90%;
       transform: translateX(-50%);
       z-index: 0;
       transition: 0.3s ease-in-out;
@@ -335,7 +333,6 @@ watch(
     .columns-card {
       @extend .columns-round;
       top: 0;
-      height: 50px;
       width: 100%;
       border-radius: 0;
     }

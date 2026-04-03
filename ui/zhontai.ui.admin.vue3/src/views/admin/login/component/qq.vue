@@ -1,19 +1,20 @@
 <template>
   <div class="login-scan-container">
     <!-- <div class="login-title">
-      <span class="login-title-showy">QQ扫码登录</span>
+      <span class="login-title-showy">{{ t('QQ扫码登录') }}</span>
     </div> -->
     <div ref="qrcodeRef"></div>
     <div class="font12 mt20 login-msg">
       <i class="iconfont icon-saoyisao mr5"></i>
       <span>{{ $t('打开 QQ 扫一扫，加入Admin开发交流群') }}</span>
-      <!-- <span>{{ $t('message.scan.text') }}</span> -->
+      <!-- <span>{{ $t('打开手机扫一扫，快速登录/注册') }}</span> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="loginScan">
 import QRCode from 'qrcodejs2-fixes'
+import { t } from '/@/i18n'
 
 // 定义变量内容
 const qrcodeRef = useTemplateRef<HTMLElement | null>('qrcodeRef')

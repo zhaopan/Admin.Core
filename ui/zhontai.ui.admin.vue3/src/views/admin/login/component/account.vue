@@ -1,23 +1,14 @@
 <template>
   <div>
     <el-form ref="formRef" :model="state.ruleForm" size="large" class="login-content-form">
-      <div class="login-title">
-        <span class="login-title-showy">{{ getDescByValue(AccountType, state.ruleForm.accountType as number) }}密码</span>登录
-      </div>
+      <div class="login-title">{{ t('账号密码登录') }}</div>
       <el-form-item
         v-if="state.ruleForm.accountType == AccountType.UserName.value"
         class="login-animation1"
         prop="userName"
-        :rules="[{ required: true, message: '请输入账号', trigger: ['blur', 'change'] }]"
+        :rules="[{ required: true, message: t('请输入账号'), trigger: ['blur', 'change'] }]"
       >
-        <el-input
-          text
-          :placeholder="$t('message.account.accountPlaceholder1')"
-          v-model="state.ruleForm.userName"
-          clearable
-          autocomplete="off"
-          @keyup.enter="onSignIn"
-        >
+        <el-input text :placeholder="$t('请输入账号')" v-model="state.ruleForm.userName" clearable autocomplete="off" @keyup.enter="onSignIn">
           <template #prefix>
             <el-icon class="el-input__icon"><ele-User /></el-icon>
           </template>
@@ -28,14 +19,14 @@
         class="login-animation1"
         prop="mobile"
         :rules="[
-          { required: true, message: '请输入手机号', trigger: ['blur', 'change'] },
+          { required: true, message: t('请输入手机号'), trigger: ['blur', 'change'] },
           { validator: testMobile, trigger: ['blur', 'change'] },
         ]"
       >
         <el-input
           ref="phoneRef"
           text
-          :placeholder="$t('message.mobile.placeholder1')"
+          :placeholder="$t('请输入手机号')"
           maxlength="11"
           v-model="state.ruleForm.mobile"
           clearable
@@ -52,14 +43,14 @@
         class="login-animation1"
         prop="email"
         :rules="[
-          { required: true, message: '请输入邮箱地址', trigger: ['blur', 'change'] },
+          { required: true, message: t('请输入邮箱地址'), trigger: ['blur', 'change'] },
           { validator: testEmail, trigger: ['blur', 'change'] },
         ]"
       >
         <el-input
           ref="phoneRef"
           text
-          :placeholder="$t('message.email.placeholder1')"
+          :placeholder="$t('请输入邮箱地址')"
           v-model="state.ruleForm.email"
           clearable
           autocomplete="off"
@@ -70,14 +61,8 @@
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item class="login-animation2" prop="password" :rules="[{ required: true, message: '请输入密码', trigger: ['blur', 'change'] }]">
-        <el-input
-          :placeholder="$t('message.account.accountPlaceholder2')"
-          v-model="state.ruleForm.password"
-          show-password
-          autocomplete="off"
-          @keyup.enter="onSignIn"
-        >
+      <el-form-item class="login-animation2" prop="password" :rules="[{ required: true, message: t('请输入密码'), trigger: ['blur', 'change'] }]">
+        <el-input :placeholder="$t('请输入密码')" v-model="state.ruleForm.password" show-password autocomplete="off" @keyup.enter="onSignIn">
           <template #prefix>
             <el-icon class="el-input__icon"><ele-Key /></el-icon>
           </template>
@@ -99,7 +84,7 @@
           :disabled="state.disabled.signIn"
           :loading="state.loading.signIn"
         >
-          <span>{{ $t('message.account.accountBtnText') }}</span>
+          <span>{{ $t('登 录') }}</span>
         </el-button>
       </el-form-item>
       <div
@@ -112,17 +97,19 @@
           type="primary"
           class="f12"
           @click="loginComponentName = ComponentType.Mobile.name"
-          >手机验证码登录</el-link
         >
+          {{ t('手机验证码登录') }}
+        </el-link>
         <el-link
           v-if="state.ruleForm.accountType == AccountType.Email.value"
           underline="never"
           type="primary"
           class="f12"
           @click="loginComponentName = ComponentType.Email.name"
-          >邮箱验证码登录</el-link
         >
-        <el-link underline="never" type="primary" class="f12" @click="onForgotPassword">忘记密码</el-link>
+          {{ t('邮箱验证码登录') }}
+        </el-link>
+        <el-link underline="never" type="primary" class="f12" @click="onForgotPassword">{{ t('忘记密码') }}</el-link>
       </div>
     </el-form>
     <MyCaptchaDialog ref="myCaptchaDialogRef" v-model="state.showDialog" @ok="onOk" />
@@ -155,7 +142,7 @@ const isPopup = defineModel('isPopup', { type: Boolean, default: false })
 const emits = defineEmits(['ok'])
 
 // 定义变量内容
-const { t } = useI18n()
+import { t } from '/@/i18n'
 const route = useRoute()
 const router = useRouter()
 const formRef = useTemplateRef('formRef')
@@ -259,7 +246,7 @@ const onSignIn = async () => {
 // 登录成功后的跳转
 const signInSuccess = (isNoPower: boolean | undefined) => {
   if (isNoPower) {
-    ElMessage.warning('抱歉，您没有分配权限，请联系管理员')
+    ElMessage.warning(t('抱歉，您没有分配权限，请联系管理员'))
     useUserInfo().removeTokenInfo()
     Session.clear()
   } else {
@@ -281,7 +268,7 @@ const signInSuccess = (isNoPower: boolean | undefined) => {
       // 添加 loading，防止第一次进入界面时出现短暂空白
       NextLoading.start()
       // 登录成功提示
-      const signInText = t('message.signInText')
+      const signInText = t('欢迎回来！')
       ElMessage.success(`${currentTimeInfo}，${signInText}`)
     }
   }
