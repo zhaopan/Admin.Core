@@ -47,7 +47,7 @@
         {
           "name": "中台开发管理",
           "code": "dev",
-          "version": "v10.0.1",
+          "version": "v10.0.3",
           "description": "ZhonTai.Module.Dev"
         }
       ]
@@ -129,7 +129,7 @@
       //默认语言
       "DefaultLang": "zh-CN",
       //语言列表
-      "Langs": [ "zh-CN", "en" ],
+      "Langs": [ "zh-CN", "zh-TW", "en" ],
       //语言请求解析列表
       "RequestCultureProviders": [ "AcceptLanguageHeader" ] //["QueryString","Cookie","AcceptLanguageHeader"]
     }
