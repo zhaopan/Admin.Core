@@ -190,8 +190,13 @@ export class HttpClient<SecurityDataType = unknown> {
           break
       }
     }
+
     if (error.message.includes('timeout')) message = '请求超时'
     if (error.message.includes('Network')) message = window.navigator.onLine ? '服务端异常' : '您已断网'
+
+    if (error.response && error.response.data && error.response.data.msg) {
+      message = error.response.data.msg
+    }
 
     if (message) {
       ElMessage.error({ message, grouping: true })

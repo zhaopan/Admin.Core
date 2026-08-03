@@ -3427,6 +3427,8 @@ export interface ProjectConfig {
   version?: string | null
   /** 描述 */
   description?: string | null
+  /** 自动同步接口到数据库 */
+  autoSyncToDb?: boolean
 }
 
 /** 添加 */

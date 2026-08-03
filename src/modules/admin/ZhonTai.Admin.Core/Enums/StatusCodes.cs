@@ -22,13 +22,13 @@ public enum StatusCodes
     /// <summary>
     /// 未登录（需要重新登录）
     /// </summary>
-    [Description("未登录")]
+    [Description("您还没有登录")]
     Status401Unauthorized = 401,
 
     /// <summary>
     /// 权限不足
     /// </summary>
-    [Description("权限不足")]
+    [Description("您没有权限操作")]
     Status403Forbidden = 403,
 
     /// <summary>

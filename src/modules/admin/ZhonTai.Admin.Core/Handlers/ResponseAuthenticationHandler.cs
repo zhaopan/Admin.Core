@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
+using ZhonTai.Admin.Core.Resources;
 using ZhonTai.Common.Extensions;
 using ZhonTai.Common.Helpers;
 using StatusCodes = ZhonTai.Admin.Core.Enums.StatusCodes;
@@ -40,11 +41,14 @@ public class ResponseAuthenticationHandler : AuthenticationHandler<Authenticatio
     {
         Response.ContentType = "application/json";
         Response.StatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized;
+        var adminCoreLocalizer = AppInfo.GetRequiredService<AdminCoreLocalizer>();
+        var msg = adminCoreLocalizer?[StatusCodes.Status401Unauthorized.ToDescription()]?.Value;
+
         await Response.WriteAsync(JsonHelper.Serialize(
             new ResponseStatusData
             {
                 Code = StatusCodes.Status401Unauthorized,
-                Msg = StatusCodes.Status401Unauthorized.ToDescription(),
+                Msg = msg,
                 Success = false
             }
         ));
@@ -54,11 +58,14 @@ public class ResponseAuthenticationHandler : AuthenticationHandler<Authenticatio
     {
         Response.ContentType = "application/json";
         Response.StatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden;
+        var adminCoreLocalizer = AppInfo.GetRequiredService<AdminCoreLocalizer>();
+        var msg = adminCoreLocalizer?[StatusCodes.Status403Forbidden.ToDescription()]?.Value;
+
         await Response.WriteAsync(JsonHelper.Serialize(
             new ResponseStatusData
             {
                 Code = StatusCodes.Status403Forbidden,
-                Msg = StatusCodes.Status403Forbidden.ToDescription(),
+                Msg = msg,
                 Success = false
             }
         ));

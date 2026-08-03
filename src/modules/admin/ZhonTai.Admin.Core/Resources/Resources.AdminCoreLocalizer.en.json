@@ -6,5 +6,11 @@
   "缺少数据列：": "Missing data column:",
   "数据填写有误：": "Data is filled in incorrectly:",
   "第{0}行 - {1}：{2}": "Line {0} - {1}: {2}",
-  "密码为字母+数字+可选特殊字符，长度在6-16之间": "The password is a combination of letters + numbers + optional special characters, with a length between 6-16"
+  "密码为字母+数字+可选特殊字符，长度在6-16之间": "The password is a combination of letters + numbers + optional special characters, with a length between 6-16",
+  "操作失败": "Operation failed",
+  "操作成功": "Operation succeeded",
+  "您还没有登录": "You are not logged in",
+  "您没有权限操作": "You do not have permission to operate",
+  "资源不存在": "Resource not found",
+  "系统内部错误": "Internal server error"
 }

@@ -28,6 +28,7 @@
                 :hide-on-click-modal="true"
                 fit="scale-down"
                 preview-teleported
+                :scale="0.6"
                 style="width: 80px; height: 80px"
               />
               <div class="ml10 my-flex-fill my-flex-y-center">

@@ -106,8 +106,8 @@ export const ContentTypeEnum = {
 export const StatusCodes = {
   Status0NotOk: { name: 'Status0NotOk', value: 0, desc: '操作失败' },
   Status1Ok: { name: 'Status1Ok', value: 1, desc: '操作成功' },
-  Status401Unauthorized: { name: 'Status401Unauthorized', value: 401, desc: '未登录' },
-  Status403Forbidden: { name: 'Status403Forbidden', value: 403, desc: '权限不足' },
+  Status401Unauthorized: { name: 'Status401Unauthorized', value: 401, desc: '您还没有登录' },
+  Status403Forbidden: { name: 'Status403Forbidden', value: 403, desc: '您没有权限操作' },
   Status404NotFound: { name: 'Status404NotFound', value: 404, desc: '资源不存在' },
   Status500InternalServerError: { name: 'Status500InternalServerError', value: 500, desc: '系统内部错误' },
 }
