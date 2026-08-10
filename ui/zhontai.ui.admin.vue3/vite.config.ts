@@ -3,14 +3,14 @@ import { resolve } from 'path'
 import { defineConfig, ConfigEnv, UserConfig } from 'vite'
 import compression from 'vite-plugin-compression'
 import vueSetupExtend from 'vite-plugin-vue-setup-extend'
-import { loadEnv } from './src/utils/vite'
+import { loadEnv } from './src/utils/vite.ts'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import AutoImport from 'unplugin-auto-import/vite'
 import fs from 'node:fs'
 import path from 'node:path'
 
 const pathResolve = (dir: string): any => {
-  return resolve(__dirname, '.', dir)
+  return resolve(import.meta.dirname, '.', dir)
 }
 
 const alias: Record<string, string> = {
