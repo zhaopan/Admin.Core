@@ -85,7 +85,6 @@ public class SsoAppManageService : BaseService, ISsoAppManageService, IDynamicAp
     /// <summary>
     /// 删除（软删除）
     /// </summary>
-    [AdminTransaction]
     public async Task SoftDeleteAsync(long id)
     {
         await _ssoAppRep.SoftDeleteAsync(id);
